@@ -1,0 +1,107 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String @id @default(cuid())
+  firstname   String
+  lastname    String
+  username    String @unique
+  email       String @unique
+  password    String
+  ImageId     String?
+  Image       Image? @relation(fields: [ImageId], references: [id])
+  role        Role @default(USER)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime? 
+
+  articles    Article[]
+  comments    Comment[]
+}
+
+enum Role {
+  ADMIN
+  MOD
+  USER
+}
+
+model Article {
+  id          String @id @default(cuid())
+  authorId    String
+  author      User @relation(fields: [authorId], references: [id])
+  imageId     String
+  image       Image @relation(fields: [imageId], references: [id])
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+  title       String @unique
+  content     String @db.Text
+  preview     String @db.VarChar(5000)
+  published   Boolean @default(false)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime? 
+
+  links       Link[]
+  comments    Comment[]
+}
+
+model Image {
+  id          String @id @default(cuid())
+  url         String
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime? 
+
+  articles    Article[]
+  links       Link[]
+  users       User[]
+}
+
+model Link {
+  id          String @id @default(cuid())
+  articleId   String
+  article     Article @relation(fields: [articleId], references: [id])
+  imageId     String
+  image       Image @relation(fields: [imageId], references: [id])
+  url         String
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime? 
+}
+
+model Category {
+  id          String @id @default(cuid())
+  name        String @unique
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  articles    Article[]
+}
+
+model Comment{
+  id          String @id @default(cuid())
+  userId      String
+  user        User @relation(fields: [userId], references: [id])
+  articleId   String
+  article     Article @relation(fields: [articleId], references: [id])
+  text        String
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+}
