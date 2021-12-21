@@ -5,9 +5,10 @@ import { Request, Response } from "express";
 import dotenv from "dotenv";
 dotenv.config();
 import jwt from "jsonwebtoken";
+import JWTClaims from "./../DTO/jwtClaims";
 const prisma = new PrismaClient();
 
-class Auth extends Handler {
+class AuthHandler extends Handler {
 
     public static async login(req: Request, res: Response) {
         const { email, password } = req.body;
@@ -21,7 +22,7 @@ class Auth extends Handler {
 
             if (!user) {
                 return res.status(404).json({
-                    message: "User not found"
+                    message: "Användaren hittades inte"
                 });
             }
 
@@ -29,15 +30,18 @@ class Auth extends Handler {
 
             if (!isMatch) {
                 return res.status(400).json({
-                    message: "Incorrect password"
+                    message: "Fel lösenord"
                 });
             }
 
-            const token = jwt.sign({
+            const claims: JWTClaims = {
                 id: user.id,
                 username: user.username,
+                role: user.role,
                 email: user.email
-            }, process.env.JWT_SECRET, {
+            };
+
+            const token = jwt.sign(claims, process.env.JWT_SECRET, {
                 expiresIn: "900h"
             });
 
@@ -75,3 +79,5 @@ class Auth extends Handler {
         }
     }
 }
+
+export default AuthHandler;

@@ -1,44 +1,74 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
+import JWTClaims from '../DTO/jwtClaims';
+import { decode } from 'punycode';
 
-const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
-    jwt.verify(req.headers.authorization, process.env.JWT_SECRET, (err, decoded) => {
+const getClaims = async (req: Request, res: Response, next: NextFunction) => {
+    let token: string;
+
+    if(req.headers.authorization) {
+        token = req.headers.authorization.split(" ")[1];
+    } else {
+        req.body.claims = null;
+        return next();
+    }
+
+    await jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
         if (err) {
-            return res.status(401).json({
-                message: 'Unauthorized'
-            });
+            req.body.claims = null;
+
+            return next();
         }
+
+        const claims = decoded as JWTClaims;
+
+        req.body.claims = claims;
+
+        console.log(req.body);
 
         return next();
     });
-}
+};
 
-const isAdmin = (req: Request, res: Response, next: NextFunction) => {
-    jwt.verify(req.headers.authorization, process.env.JWT_SECRET, (err, decoded) => {
-        if (err) {
-            return res.status(401).json({
-                message: 'Unauthorized'
-            });
-        }
-
-        if (decoded.role === 'ADMIN') {
-            return next();
-        }
-    }); 
+const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
+    if (req.body.claims)  {
+        return next();
+    } else {
+        return res.status(401).json({
+            message: "Du måste vara inloggad för att göra detta"
+        });
+    }
 }
 
 const isMod = (req: Request, res: Response, next: NextFunction) => {
-    jwt.verify(req.headers.authorization, process.env.JWT_SECRET, (err, decoded) => {
-        if (err) {
-            return res.status(401).json({
-                message: 'Unauthorized'
-            });
-        }
-
-        if (decoded.role === 'MOD' || decoded.role === 'ADMIN') {
-            return next();
-        }
-    });
+    if (req.body.claims && (req.body.claims.role === 'MOD' || req.body.claims.role === 'ADMIN')) {
+        return next();
+    } else {
+        return res.status(401).json({
+            message: "Du måste vara moderator eller administratör för att göra detta"
+        });
+    }
 }
 
-export { isAuthenticated, isAdmin, isMod };
+const isAdmin = (req: Request, res: Response, next: NextFunction) => {
+    if (req.body.claims && req.body.claims.role === 'ADMIN') {
+        return next();
+    } else {
+        return res.status(401).json({
+            message: "Du måste vara administratör för att göra detta"
+        });
+    }
+}
+
+const isNotAuthenticated = (req: Request, res: Response, next: NextFunction) => {
+    if (!req.body.claims) {
+        return next();
+    } else {
+        return res.status(401).json({
+            message: "Du kan inte göra detta när du är inloggad"
+        });
+    }
+}
+
+
+export { isAuthenticated, isNotAuthenticated, isAdmin, isMod, getClaims };
