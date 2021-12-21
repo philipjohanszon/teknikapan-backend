@@ -7,8 +7,6 @@ const userUpdateSchema = Joi.object({
     role: Joi.string().required(),
     email: Joi.string().email().required(),
     password: Joi.string().min(6),
-
-    deletedAt: Joi.date(),
 });
 
 const userCreateSchema = Joi.object({
@@ -18,8 +16,6 @@ const userCreateSchema = Joi.object({
     role: Joi.string().required(),
     email: Joi.string().email().required(),
     password: Joi.string().min(6).required(),
-
-    deletedAt: Joi.date(),
 });
 
 export { userUpdateSchema, userCreateSchema };

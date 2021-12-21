@@ -17,8 +17,8 @@ model User {
   username    String @unique
   email       String @unique
   password    String
-  ImageId     String?
-  Image       Image? @relation(fields: [ImageId], references: [id])
+  imageId     String?
+  image       Image? @relation(fields: [imageId], references: [id])
   role        Role @default(USER)
 
   createdAt   DateTime @default(now())

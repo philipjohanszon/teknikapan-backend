@@ -10,13 +10,30 @@ const prisma = new PrismaClient();
 
 export default class UserHandler extends Handler {
     public static async get(req: Request, res: Response) {
-        const users = await prisma.user.findMany();
+        const users = await prisma.user.findMany({
+            include: {
+                image: true
+            }
+        });
 
         res.status(200).json(users);
     }
 
     public static async create(req: Request, res: Response) {
         const { username, firstname, lastname, role, email, password } = req.body;
+
+        console.log(req.body);
+
+        try {
+            const value = userUpdateSchema.validate({ username, firstname, lastname, role, email, password });
+            console.log(value);
+        } catch (error) {
+            res.status(400).json({
+                message: error.message
+            });
+
+            return;
+        }
 
         const hashedPassword = await bcrypt.hash(password, 12);
 
@@ -28,7 +45,10 @@ export default class UserHandler extends Handler {
                     firstname,
                     lastname,
                     role,
-                    password: hashedPassword 
+                    password: hashedPassword
+                },
+                include: {
+                    image: true
                 }
             });
 
@@ -54,28 +74,31 @@ export default class UserHandler extends Handler {
             return;
         }
 
-        const hashedPassword = await bcrypt.hash(password, 12);
+        if (password) {
 
-        try {
-            const user = await prisma.user.update({
-                where: {
-                    id
-                },
-                data: {
-                    username,
-                    email,
-                    firstname,
-                    lastname,
-                    role,
-                    password: hashedPassword 
-                }
-            });
+            const hashedPassword = await bcrypt.hash(password, 12);
 
-            res.status(200).json(user);
-        } catch (error) {
-            res.status(400).json({
-                message: error.message
-            });
+            try {
+                const user = await prisma.user.update({
+                    where: {
+                        id
+                    },
+                    data: {
+                        username,
+                        email,
+                        firstname,
+                        lastname,
+                        role,
+                        password: hashedPassword
+                    }
+                });
+
+                res.status(200).json(user);
+            } catch (error) {
+                res.status(400).json({
+                    message: error.message
+                });
+            }
         }
     }
 
