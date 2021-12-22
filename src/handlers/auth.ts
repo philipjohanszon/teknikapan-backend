@@ -6,12 +6,24 @@ import dotenv from "dotenv";
 dotenv.config();
 import jwt from "jsonwebtoken";
 import JWTClaims from "./../DTO/jwtClaims";
+import { loginSchema, registerSchema } from "../validation/authSchemas";
+
 const prisma = new PrismaClient();
 
 class AuthHandler extends Handler {
 
     public static async login(req: Request, res: Response) {
         const { email, password } = req.body;
+
+        try {
+            loginSchema.validate({ email, password });
+        } catch (error) {
+            res.status(400).json({
+                message: error.message
+            });
+
+            return;
+        }
 
         try {
             const user = await prisma.user.findUnique({
@@ -57,6 +69,16 @@ class AuthHandler extends Handler {
 
     public static async register(req: Request, res: Response) {
         const { username, firstname, lastname, email, password } = req.body;
+
+        try {
+            registerSchema.validate({ username, firstname, lastname, email, password });
+        } catch (error) {
+            res.status(400).json({
+                message: error.message
+            });
+
+            return;
+        }
 
         const hashedPassword = await bcrypt.hash(password, 12);
 
