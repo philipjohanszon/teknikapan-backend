@@ -73,11 +73,9 @@ class AuthHandler extends Handler {
         try {
             registerSchema.validate({ username, firstname, lastname, email, password });
         } catch (error) {
-            res.status(400).json({
+            return res.status(400).json({
                 message: error.message
             });
-
-            return;
         }
 
         const hashedPassword = await bcrypt.hash(password, 12);

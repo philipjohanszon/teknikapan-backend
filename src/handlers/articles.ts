@@ -1,5 +1,5 @@
 import Handler from "./handler";
-import { Article, Prisma, PrismaClient } from "@prisma/client";
+import { Article, PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 import { Request, Response } from "express";
 import { transformDocument } from "@prisma/client/runtime";
@@ -168,9 +168,13 @@ class ArticlesHandler extends Handler {
         const id = req.params.id;
 
         try {
-            const article = await prisma.article.delete({
+            const article = await prisma.article.update({
                 where: {
                     id
+                },
+                data: {
+                    published: false,
+                    deletedAt: new Date()
                 }
             });
 

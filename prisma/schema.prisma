@@ -59,6 +59,7 @@ model Article {
 model Image {
   id          String @id @default(cuid())
   url         String
+  alt         String
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
