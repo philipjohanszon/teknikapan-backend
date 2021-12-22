@@ -25,7 +25,10 @@ app.put('/users/:id', isAuthenticated, UserHandler.update);
 app.delete('/users/:id', isAuthenticated, UserHandler.delete);
 
 app.get("/articles", ArticlesHandler.get);
-app.get("/articles/:id", ArticlesHandler.getById);
+app.post("/articles", isAdmin, ArticlesHandler.create);
+app.get("/articles/:id", isAdmin, ArticlesHandler.getById);
+app.put("/articles/:id", isAdmin, ArticlesHandler.update);
+app.delete("/articles/:id", isAdmin, ArticlesHandler.delete);
 
 app.post("/auth/login", isNotAuthenticated, AuthHandler.login);
 app.post("/auth/register", isNotAuthenticated, AuthHandler.register);
