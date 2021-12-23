@@ -3,7 +3,7 @@ import { Article, PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 import { Request, Response } from "express";
 import { transformDocument } from "@prisma/client/runtime";
-import { isMod, isAdmin, claimsExist } from "../libs/auth";
+import { isMod, isAdmin, isLoggedIn } from "../libs/auth";
 import { createArticleSchema, updateArticleSchema } from "../validation/articleSchemas";
 
 class ArticlesHandler extends Handler {
@@ -40,7 +40,7 @@ class ArticlesHandler extends Handler {
         }
 
         // only admins and moderators can see unpublished articles
-        if (req.query.published && claimsExist(req) && isAdmin(req) && isMod(req)) {
+        if (req.query.published && isLoggedIn(req) && isAdmin(req) && isMod(req)) {
             query = {
                 ...query,
                 published: req.query.published

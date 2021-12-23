@@ -1,15 +1,15 @@
 import { Request } from "express";
 
-const claimsExist = (req: Request) => {
+const isLoggedIn = (req: Request) => {
     return req.body.claims != null;
 }
 
 const isAdmin = (req: Request) => {
-    return req.body.claims.role === "admin";
+    return req.body.claims.role === "ADMIN";
 }
 
 const isMod = (req: Request) => {
     return req.body.claims.role === "MOD";
 }
 
-export { isAdmin, isMod, claimsExist };
+export { isAdmin, isMod, isLoggedIn };
