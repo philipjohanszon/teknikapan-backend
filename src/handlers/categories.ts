@@ -13,7 +13,7 @@ class CategoriesHandler extends Handler {
 
         return res.status(200).json(categories);
     }
-    
+
     public static async getById(req: Request, res: Response) {
         const { id } = req.params;
         const category = await prisma.category.findUnique({

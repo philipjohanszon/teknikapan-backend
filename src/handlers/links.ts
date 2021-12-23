@@ -7,7 +7,7 @@ import internal from "stream";
 class LinksHandler extends Handler {
     public static async get(req: Request, res: Response) {
 
-        let query: Object = {};
+        let query: object = {};
 
         if (req.query.articleId) {
             query = {
@@ -21,8 +21,8 @@ class LinksHandler extends Handler {
             let amount: number;
 
             try {
-                page = parseInt(req.query.page as string);
-                amount = parseInt(req.query.amount as string);
+                page = parseInt(req.query.page as string, 10);
+                amount = parseInt(req.query.amount as string, 10);
             } catch (error) {
                 res.status(400).json({
                     message: error.message
@@ -128,7 +128,7 @@ class LinksHandler extends Handler {
             data: {
                 deletedAt: new Date()
             }
-            
+
         });
 
         res.status(204).json();

@@ -6,7 +6,7 @@ import { isMod, isAdmin } from "../libs/auth";
 
 class CommentsHandler extends Handler {
     public static async get(req: Request, res: Response) {
-        let query: Object = {
+        let query: object = {
             deletedAt: null
         };
 
@@ -19,7 +19,7 @@ class CommentsHandler extends Handler {
 
         if (req.query.userId) {
             query = {
-                ...query,   
+                ...query,
                 userId: req.query.userId
             }
         }
@@ -38,8 +38,8 @@ class CommentsHandler extends Handler {
             let amount: number;
 
             try {
-                page = parseInt(req.query.page as string);
-                amount = parseInt(req.query.amount as string);
+                page = parseInt(req.query.page as string, 10);
+                amount = parseInt(req.query.amount as string, 10);
             } catch (error) {
                 res.status(400).json({
                     message: error.message
@@ -49,7 +49,7 @@ class CommentsHandler extends Handler {
             const comments = await prisma.comment.findMany({
                 include: {
                     user: true,
-                }, 
+                },
                 where: query,
                 orderBy: {
                     createdAt: "desc"
@@ -63,7 +63,7 @@ class CommentsHandler extends Handler {
             const comments = await prisma.comment.findMany({
                 include: {
                     user: true,
-                }, 
+                },
                 where: query,
                 orderBy: {
                     createdAt: "desc"
@@ -79,7 +79,7 @@ class CommentsHandler extends Handler {
 
         const comment = await prisma.comment.findUnique({
             where: {
-                id: id
+                id
             },
             include: {
                 user: true,
@@ -102,9 +102,9 @@ class CommentsHandler extends Handler {
         try {
             const comment = await prisma.comment.create({
                 data: {
-                    userId: userId,
-                    articleId: articleId,
-                    text: text
+                    userId,
+                    articleId,
+                    text
                 }
             });
 
@@ -128,7 +128,7 @@ class CommentsHandler extends Handler {
         try {
             const comment = await prisma.comment.delete({
                 where: {
-                    id: id
+                    id
                 }
             });
 

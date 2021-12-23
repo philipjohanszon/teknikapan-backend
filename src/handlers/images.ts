@@ -15,8 +15,8 @@ class ImageHandler extends Handler {
             let amount: number;
 
             try {
-                page = parseInt(req.query.page as string);
-                amount = parseInt(req.query.amount as string);
+                page = parseInt(req.query.page as string, 10);
+                amount = parseInt(req.query.amount as string, 10);
             } catch (error) {
                 res.status(400).json({
                     message: error.message
@@ -104,7 +104,7 @@ class ImageHandler extends Handler {
             });
         }
     }
-    
+
     public static async delete(req: Request, res: Response) {
         const { id } = req.params;
 
@@ -132,7 +132,7 @@ class ImageHandler extends Handler {
         const { id } = req.params;
         const { alt } = req.body;
         const file = req.file;
-        
+
         if (!file) {
             try {
                 const image = await prisma.image.update({

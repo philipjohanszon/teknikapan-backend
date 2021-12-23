@@ -21,7 +21,7 @@ class ArticlesHandler extends Handler {
         }
 
         let articles: Article[] = [];
-        let query: Object = {
+        let query: object = {
             published: true,
             deletedAt: null
         };
@@ -68,8 +68,8 @@ class ArticlesHandler extends Handler {
             let amount: number;
 
             try {
-                page = parseInt(req.query.page as string);
-                amount = parseInt(req.query.amount as string);
+                page = parseInt(req.query.page as string, 10);
+                amount = parseInt(req.query.amount as string, 10);
             } catch (error) {
                 res.status(400).json({
                     message: error.message
@@ -81,7 +81,7 @@ class ArticlesHandler extends Handler {
                 where: query,
                 orderBy: {
                     createdAt: "desc"
-                }, 
+                },
                 skip: (page - 1) * amount,
                 take: amount
             });

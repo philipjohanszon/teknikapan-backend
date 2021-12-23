@@ -13,7 +13,7 @@ const prisma = new PrismaClient();
 export default class UserHandler extends Handler {
     public static async get(req: Request, res: Response) {
         let users: UserWithImage[] = [];
-        let query: Object = {
+        let query: object = {
             deletedAt: null
         };
 
@@ -23,7 +23,7 @@ export default class UserHandler extends Handler {
                 role: req.query.role
             }
         }
-    
+
         if (req.query.username) {
             query = {
                 ...query,
@@ -65,8 +65,8 @@ export default class UserHandler extends Handler {
             let amount: number;
 
             try {
-                page = parseInt(req.query.page as string);
-                amount = parseInt(req.query.amount as string);
+                page = parseInt(req.query.page as string, 10);
+                amount = parseInt(req.query.amount as string, 10);
             } catch (error) {
                 res.status(400).json({
                     message: error.message
@@ -88,9 +88,9 @@ export default class UserHandler extends Handler {
             });
         }
 
-        //more optimised to keep it out here
+        // more optimised to keep it out here
         const admin: boolean = isAdmin(req);
-        let strippedUsers: StrippedUser[] | LessStrippedUser[] = users.map(user => stripUserData(user, admin));
+        const strippedUsers: StrippedUser[] | LessStrippedUser[] = users.map(user => stripUserData(user, admin));
 
         res.status(200).json(strippedUsers);
     }
