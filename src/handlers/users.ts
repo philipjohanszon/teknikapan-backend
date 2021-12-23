@@ -213,7 +213,7 @@ export default class UserHandler extends Handler {
 
         const claims = req.body.claims as JWTClaims;
 
-        if (!(claims.role == 'ADMIN' || claims.role == "MOD") && claims.id !== id) {
+        if (!(claims.role === 'ADMIN' || claims.role === "MOD") && claims.id !== id) {
             res.status(403).json({
                 message: "Du har inte behörighet att utföra denna ändring"
             });
