@@ -31,7 +31,7 @@ const getClaims = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
-    if (req.body.claims)  {
+    if (req.body.claims != null) {
         return next();
     } else {
         return res.status(401).json({
@@ -41,7 +41,7 @@ const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
 }
 
 const isMod = (req: Request, res: Response, next: NextFunction) => {
-    if (req.body.claims && (req.body.claims.role === 'MOD' || req.body.claims.role === 'ADMIN')) {
+    if (req.body.claims != null && (req.body.claims.role === 'MOD' || req.body.claims.role === 'ADMIN')) {
         return next();
     } else {
         return res.status(401).json({
@@ -51,7 +51,7 @@ const isMod = (req: Request, res: Response, next: NextFunction) => {
 }
 
 const isAdmin = (req: Request, res: Response, next: NextFunction) => {
-    if (req.body.claims && req.body.claims.role === 'ADMIN') {
+    if (req.body.claims != null && req.body.claims.role === 'ADMIN') {
         return next();
     } else {
         return res.status(401).json({
@@ -61,7 +61,7 @@ const isAdmin = (req: Request, res: Response, next: NextFunction) => {
 }
 
 const isNotAuthenticated = (req: Request, res: Response, next: NextFunction) => {
-    if (!req.body.claims) {
+    if (req.body.claims == null) {
         return next();
     } else {
         return res.status(401).json({
