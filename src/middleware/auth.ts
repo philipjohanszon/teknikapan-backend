@@ -41,7 +41,14 @@ const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
 }
 
 const isMod = (req: Request, res: Response, next: NextFunction) => {
-    if (req.body.claims != null && (req.body.claims.role === 'MOD' || req.body.claims.role === 'ADMIN')) {
+    if (req.body.claims != null) {
+        if (req.body.claims.role === "MOD" || req.body.claims.role === 'ADMIN') {
+            return next();
+        } else {
+            return res.status(401).json({
+                message: "Du måste vara moderator eller administratör för att göra detta"
+            });
+        }
         return next();
     } else {
         return res.status(401).json({
@@ -51,8 +58,14 @@ const isMod = (req: Request, res: Response, next: NextFunction) => {
 }
 
 const isAdmin = (req: Request, res: Response, next: NextFunction) => {
-    if (req.body.claims != null && req.body.claims.role === 'ADMIN') {
-        return next();
+    if (req.body.claims != null) {
+        if (req.body.claims.role === "ADMIN") {
+            return next();
+        } else {
+            return res.status(401).json({
+                message: "Du måste vara administratör för att göra detta"
+            });
+        }
     } else {
         return res.status(401).json({
             message: "Du måste vara administratör för att göra detta"
