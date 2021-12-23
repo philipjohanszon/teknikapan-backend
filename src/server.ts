@@ -24,7 +24,7 @@ app.get('/', (req, res) => {
     res.status(200).send("I'm alive!");
 });
 
-app.get('/users', UserHandler.get);
+app.get('/users', isAdmin, UserHandler.get);
 app.post('/users', isAdmin, UserHandler.create);
 app.get('/users/:id', UserHandler.getById);
 app.put('/users/:id', isAuthenticated, UserHandler.update);
