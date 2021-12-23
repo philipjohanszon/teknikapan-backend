@@ -1,24 +1,98 @@
 import { Response, Request } from 'express';
 import Handler from "./handler";
 import { userUpdateSchema, userCreateSchema } from "../validation/userSchemas";
-
-import Joi from "joi";
 import bcrypt from 'bcrypt';
-
 import { PrismaClient } from '@prisma/client';
 import JWTClaims from '../DTO/jwtClaims';
+import { stripUserData } from '../libs/user';
+import { isAdmin } from '../libs/auth';
+import { StrippedUser, LessStrippedUser, UserWithImage } from '../DTO/user';
 
 const prisma = new PrismaClient();
 
 export default class UserHandler extends Handler {
     public static async get(req: Request, res: Response) {
-        const users = await prisma.user.findMany({
-            include: {
-                image: true
-            }
-        });
+        let users: UserWithImage[] = [];
+        let query: Object = {
+            deletedAt: null
+        };
 
-        res.status(200).json(users);
+        if (req.query.role) {
+            query = {
+                ...query,
+                role: req.query.role
+            }
+        }
+    
+        if (req.query.username) {
+            query = {
+                ...query,
+                username: {
+                    contains: req.query.username
+                }
+            }
+        }
+
+        if (req.query.email) {
+            query = {
+                ...query,
+                email: {
+                    contains: req.query.email
+                }
+            }
+        }
+
+        if (req.query.firstname) {
+            query = {
+                ...query,
+                firstname: {
+                    contains: req.query.firstname
+                }
+            }
+        }
+
+        if (req.query.lastname) {
+            query = {
+                ...query,
+                lastname: {
+                    contains: req.query.lastname
+                }
+            }
+        }
+
+        if (req.query.page) {
+            let page: number;
+            let amount: number;
+
+            try {
+                page = parseInt(req.query.page as string);
+                amount = parseInt(req.query.amount as string);
+            } catch (error) {
+                res.status(400).json({
+                    message: error.message
+                });
+            }
+
+            users = await prisma.user.findMany({
+                include: {
+                    image: true
+                },
+                where: query
+            });
+        } else {
+            users = await prisma.user.findMany({
+                include: {
+                    image: true
+                },
+                where: query
+            });
+        }
+
+        //more optimised to keep it out here
+        const admin: boolean = isAdmin(req);
+        let strippedUsers: StrippedUser[] | LessStrippedUser[] = users.map(user => stripUserData(user, admin));
+
+        res.status(200).json(strippedUsers);
     }
 
     public static async getById(req: Request, res: Response) {
@@ -27,6 +101,9 @@ export default class UserHandler extends Handler {
         const user = await prisma.user.findUnique({
             where: {
                 id
+            },
+            include: {
+                image: true
             }
         });
 
@@ -35,16 +112,15 @@ export default class UserHandler extends Handler {
                 message: "Användaren hittades inte"
             });
         }
-        
-        res.status(200).json(user);
+
+        res.status(200).json(stripUserData(user, isAdmin(req)));
     }
 
     public static async create(req: Request, res: Response) {
         const { username, firstname, lastname, role, email, password } = req.body;
 
         try {
-            const value = userUpdateSchema.validate({ username, firstname, lastname, role, email, password });
-            console.log(value);
+            userCreateSchema.validate({ username, firstname, lastname, role, email, password });
         } catch (error) {
             res.status(400).json({
                 message: error.message
@@ -70,7 +146,7 @@ export default class UserHandler extends Handler {
                 }
             });
 
-            res.status(200).json(user);
+            res.status(200).json(stripUserData(user, isAdmin(req)));
         } catch (error) {
             res.status(400).json({
                 message: error.message
@@ -94,13 +170,11 @@ export default class UserHandler extends Handler {
 
 
         try {
-            const value = userUpdateSchema.validate({ username, firstname, lastname, role, email, password });
+            userUpdateSchema.validate({ username, firstname, lastname, role, email, password });
         } catch (error) {
-            res.status(400).json({
+            return res.status(400).json({
                 message: error.message
             });
-
-            return;
         }
 
         if (password) {
@@ -119,10 +193,13 @@ export default class UserHandler extends Handler {
                         lastname,
                         role,
                         password: hashedPassword
+                    },
+                    include: {
+                        image: true
                     }
                 });
 
-                res.status(200).json(user);
+                res.status(200).json(stripUserData(user, isAdmin(req)));
             } catch (error) {
                 res.status(400).json({
                     message: error.message
@@ -154,7 +231,7 @@ export default class UserHandler extends Handler {
                 }
             });
 
-            res.status(200).json(user);
+            res.status(200).json("Deleted");
         } catch (error) {
             res.status(400).json({
                 message: error.message

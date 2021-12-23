@@ -22,7 +22,8 @@ class ArticlesHandler extends Handler {
 
         let articles: Article[] = [];
         let query: Object = {
-            published: true
+            published: true,
+            deletedAt: null
         };
 
         if (req.query.categoryId) {
@@ -39,6 +40,21 @@ class ArticlesHandler extends Handler {
             }
         }
 
+        if (req.query.text) {
+            query = {
+                ...query,
+                title: {
+                    contains: req.query.text
+                },
+                content: {
+                    contains: req.query.text
+                },
+                preview: {
+                    contains: req.query.text
+                }
+            }
+        }
+
         // only admins and moderators can see unpublished articles
         if (req.query.published && isLoggedIn(req) && isAdmin(req) && isMod(req)) {
             query = {
@@ -48,8 +64,17 @@ class ArticlesHandler extends Handler {
         }
 
         if (req.query.page) {
-            const page = parseInt(req.query.page as string);
-            const amount = parseInt(req.query.amount as string);
+            let page: number;
+            let amount: number;
+
+            try {
+                page = parseInt(req.query.page as string);
+                amount = parseInt(req.query.amount as string);
+            } catch (error) {
+                res.status(400).json({
+                    message: error.message
+                });
+            }
 
             articles = await prisma.article.findMany({
                 include: included,

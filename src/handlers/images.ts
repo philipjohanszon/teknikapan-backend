@@ -6,6 +6,54 @@ import { link } from "joi";
 const prisma = new PrismaClient();
 
 class ImageHandler extends Handler {
+    public static async get(req: Request, res: Response) {
+
+        let images: Image[];
+
+        if (req.query.page) {
+            let page: number;
+            let amount: number;
+
+            try {
+                page = parseInt(req.query.page as string);
+                amount = parseInt(req.query.amount as string);
+            } catch (error) {
+                res.status(400).json({
+                    message: error.message
+                });
+            }
+
+            images = await prisma.image.findMany({
+                include: {
+                    articles: true,
+                    links: true
+                },
+                where: {
+                    deletedAt: null
+                },
+                orderBy: {
+                    createdAt: "desc"
+                },
+                skip: (page - 1) * amount,
+                take: amount
+            });
+        } else {
+            images = await prisma.image.findMany({
+                include: {
+                    articles: true,
+                    links: true
+                },
+                where: {
+                    deletedAt: null
+                },
+            });
+        }
+
+        return res.status(200).json({
+            images
+        });
+    }
+
     public static async getById(req: Request, res: Response) {
         const { id } = req.params;
 
@@ -23,39 +71,6 @@ class ImageHandler extends Handler {
 
         return res.status(200).json({
             image
-        });
-    }
-
-    public static async get(req: Request, res: Response) {
-
-        let images: Image[];
-
-        if (req.query.page) {
-            const page = parseInt(req.query.page as string);
-            const amount = parseInt(req.query.amount as string);
-
-            images = await prisma.image.findMany({
-                include: {
-                    articles: true,
-                    links: true
-                },
-                orderBy: {
-                    createdAt: "desc"
-                },
-                skip: (page - 1) * amount,
-                take: amount
-            });
-        } else {
-            images = await prisma.image.findMany({
-                include: {
-                    articles: true,
-                    links: true
-                }
-            });
-        }
-
-        return res.status(200).json({
-            images
         });
     }
 

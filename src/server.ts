@@ -10,6 +10,8 @@ import UserHandler from './handlers/users';
 import AuthHandler from './handlers/auth';
 import ImageHandler from './handlers/images';
 import ArticlesHandler from './handlers/articles';
+import LinksHandler from './handlers/links';
+import CommentsHandler from './handlers/comments';
 
 import { isAdmin, isMod, isAuthenticated, isNotAuthenticated, getClaims } from './middleware/auth';
 
@@ -38,6 +40,17 @@ app.post("/images", isAdmin, uploads.single("image"),  ImageHandler.create);
 app.get("/images/:id", isAdmin, ImageHandler.getById);
 app.put("/images/:id", isAdmin, ImageHandler.update);
 app.delete("/images/:id", isAdmin, ImageHandler.delete);
+
+app.get("/links", isAdmin, LinksHandler.get);
+app.post("/links", isAdmin, LinksHandler.create);
+app.get("/links/:id", isAdmin, LinksHandler.getById);
+app.put("/links/:id", isAdmin, LinksHandler.update);
+app.delete("/links/:id", isAdmin, LinksHandler.delete);
+
+app.get("/comments", isMod, CommentsHandler.get);
+app.post("/comments", isAuthenticated, CommentsHandler.create);
+app.get("/comments/:id", CommentsHandler.getById);
+app.delete("/comments/:id", isAuthenticated, CommentsHandler.delete);
 
 app.post("/auth/login", isNotAuthenticated, AuthHandler.login);
 app.post("/auth/register", isNotAuthenticated, AuthHandler.register);
