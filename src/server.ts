@@ -12,6 +12,7 @@ import ImageHandler from './handlers/images';
 import ArticlesHandler from './handlers/articles';
 import LinksHandler from './handlers/links';
 import CommentsHandler from './handlers/comments';
+import CategoriesHandler from './handlers/categories';
 
 import { isAdmin, isMod, isAuthenticated, isNotAuthenticated, getClaims } from './middleware/auth';
 
@@ -51,6 +52,10 @@ app.get("/comments", isMod, CommentsHandler.get);
 app.post("/comments", isAuthenticated, CommentsHandler.create);
 app.get("/comments/:id", CommentsHandler.getById);
 app.delete("/comments/:id", isAuthenticated, CommentsHandler.delete);
+
+app.get("/categories", CategoriesHandler.get);
+app.post("/categories", isAdmin, CategoriesHandler.create);
+app.put("/categories/:id", isAdmin, CategoriesHandler.update);
 
 app.post("/auth/login", isNotAuthenticated, AuthHandler.login);
 app.post("/auth/register", isNotAuthenticated, AuthHandler.register);
