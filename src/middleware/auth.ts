@@ -1,13 +1,12 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 import JWTClaims from '../DTO/jwtClaims';
-import { decode } from 'punycode';
 
 const getClaims = async (req: Request, res: Response, next: NextFunction) => {
     let token: string;
 
-    if(req.headers.authorization) {
-        token = req.headers.authorization.split(" ")[1];
+    if(req.cookies.token != null) {
+        token = req.cookies.token;
     } else {
         req.body.claims = null;
         return next();
@@ -23,8 +22,6 @@ const getClaims = async (req: Request, res: Response, next: NextFunction) => {
         const claims = decoded as JWTClaims;
 
         req.body.claims = claims;
-
-        console.log(req.body);
 
         return next();
     });

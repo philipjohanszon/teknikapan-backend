@@ -1,5 +1,6 @@
 import express from 'express';
 import multer from 'multer';
+import cookieParser from 'cookie-parser';
 const uploads = multer({ dest: 'uploads/' });
 const app = express();
 import dotenv from "dotenv";
@@ -18,11 +19,14 @@ import { isAdmin, isMod, isAuthenticated, isNotAuthenticated, getClaims } from '
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 app.use(getClaims);
 
 app.get('/', (req, res) => {
     res.status(200).send("I'm alive!");
 });
+
+app.use("/uploads", express.static('uploads'));
 
 app.get('/users', isMod, UserHandler.get);
 app.post('/users', isAdmin, UserHandler.create);

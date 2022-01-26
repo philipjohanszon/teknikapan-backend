@@ -84,12 +84,12 @@ class ImageHandler extends Handler {
             });
         }
 
-        const { filename } = file;
+        const { filename, mimetype } = file;
 
         try {
             const image = await prisma.image.create({
                 data: {
-                    url: `${process.env.IMAGE_URL}/${filename}${file.mimetype}`,
+                    url: `${process.env.IMAGE_URL}/${filename}${mimetype}`,
                     alt
                 }
             });

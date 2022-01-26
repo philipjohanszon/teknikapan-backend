@@ -57,8 +57,12 @@ class AuthHandler extends Handler {
                 expiresIn: "900h"
             });
 
-            res.status(200).json({
-                token
+            res.status(200).cookie("token", token, {
+                httpOnly: true,
+                maxAge: 604800000,
+                secure: false
+            }).json({
+                message: "Inloggningen lyckades"
             });
         } catch (error) {
             res.status(400).json({
